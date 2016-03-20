@@ -62,10 +62,11 @@ bool Evaluation::is_balanced(const string& expression) {
 
 int Evaluation::evaluate(string expression) {
 
-	/*evaluate: Evaluates the stack
-	* input: Takes in a string
-	* returns: int result of the expression
+	/* evaluate: Evaluates the stack
+	*  input: Takes in a string
+	*  returns: int result of the expression
 	*/
+
 	// Check for balanced parantheses
 	if (is_balanced(expression) == false) {
 		cout << "The expression has unbalanced parantheses." << endl;
@@ -74,7 +75,6 @@ int Evaluation::evaluate(string expression) {
 
 	// Start reading in tokens from string
 	istringstream tokens(expression);
-	string allowed;
 
 	char current_char;
 	while (tokens >> current_char) {
@@ -86,26 +86,104 @@ int Evaluation::evaluate(string expression) {
 			lastPushed = "operand";
 		}
 		else if (is_operator(current_char)) {
-
 			// The only available operators that can follow another one are + - ! = & |
 			switch (current_char) {
-			case '+': {
+// '+' breaks if there are 3 '+' in a row
+			case '+':
 				// Possible 5 valid combinations: + space ( negation digit
 				if (tokens.peek() == '+') {
 					operators.push("INC");
-					tokens >> current_char; // Move the cursor over by one
 					lastPushed = "unary";
+					tokens >> current_char; // Move the cursor over by one
+// Need to look ahead until we find a digit (ignoring spaces); if operator after INC (or DEC), fail
+					break;
 				}
-				else if ((tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ') || (isdigit(tokens.peek()))) {
+				else if ((isdigit(tokens.peek())) || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
 					if (lastPushed == "binary") {
 						cout << "Two binary operators in a row at char " << endl;
 						exit(1);
 					}
 					operators.push("ADD");
 					lastPushed = "binary";
+					break;
 					// Do not need to move the cursor forward as the while loop will do that automatically. 
 				}
-			}
+				// if no valid characters follow the operator
+				else {
+					cout << "Two binary operators in a row at char " << endl;
+					exit(1);
+				}
+			case '^':
+				if (isdigit(tokens.peek()) || (tokens.peek() == '+') || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
+					if (lastPushed == "binary") {
+						cout << "Two binary operators in a row at char " << endl;
+						exit(1);
+					}
+					operators.push("POW");
+					lastPushed = "binary";
+					break;
+				}
+				else {
+					cout << "Two binary operators in a row at char " << endl;
+					exit(1);
+				}
+			case '=':
+				if (tokens.peek() == '=') {
+					if (lastPushed == "binary") {
+						cout << "Two binary operators in a row at char " << endl;
+						exit(1);
+					}
+					operators.push("EQU");
+					lastPushed = "binary";
+					tokens >> current_char;
+					break;
+				}
+				else if ((isdigit(tokens.peek())) || (tokens.peek() == ' ')) {
+					cout << "Equal sign in the expression at char " << endl;
+					exit(1);
+				}
+				else {
+					cout << "Invalid sequence of operators at char " << endl;
+					exit(1);
+				}
+			case '&' :
+				if (tokens.peek() == '&') {
+					if (lastPushed == "binary") {
+						cout << "Two binary operators in a row at char " << endl;
+						exit(1);
+					}
+					operators.push("AND");
+					lastPushed = "binary";
+					tokens >> current_char;
+					break;
+				}
+				else if ((isdigit(tokens.peek())) || (tokens.peek() == ' ')) {
+					cout << "Single ampersand in the expression at char " << endl;
+					exit(1);
+				}
+				else {
+					cout << "Invalid sequence of operators at char " << endl;
+					exit(1);
+				}
+			case '|':
+				if (tokens.peek() == '|') {
+					if (lastPushed == "binary") {
+						cout << "Two binary operators in a row at char " << endl;
+						exit(1);
+					}
+					operators.push("OR");
+					lastPushed = "binary";
+					tokens >> current_char;
+					break;
+				}
+				else if ((isdigit(tokens.peek())) || (tokens.peek() == ' ')) {
+					cout << "Single bar in the expression at char " << endl;
+					exit(1);
+				}
+				else {
+					cout << "Invalid sequence of operators at char " << endl;
+					exit(1);
+				}
 			}
 		}
 	}
