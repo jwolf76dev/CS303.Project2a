@@ -4,6 +4,6 @@
 
 void main() {
 	Evaluation eval; 
-	eval.evaluate("5+ 55+++6^33==(4-3) || (2341+1) && 42"); 
+	eval.evaluate("55 + 2^^2");
 	system("PAUSE");
 }

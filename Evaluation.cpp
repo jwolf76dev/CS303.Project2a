@@ -77,30 +77,40 @@ int Evaluation::evaluate(string expression) {
 	istringstream tokens(expression);
 
 	char current_char;
+	int charCount = 0;
+	string stringResult;
+
 	while (tokens >> current_char) {
 		if (isdigit(current_char)) {
 			tokens.putback(current_char);
 			int value;
 			tokens >> value;
+			// push the substring to the operand stack
 			operands.push(value);
 			lastPushed = "operand";
 		}
 		else if (is_operator(current_char)) {
 			// The only available operators that can follow another one are + - ! = & |
 			switch (current_char) {
-// '+' breaks if there are 3 '+' in a row
 			case '+':
 				// Possible 5 valid combinations: + space ( negation digit
 				if (tokens.peek() == '+') {
+					if (lastPushed == "operand") {
+						cout << "Cannot follow an operand with a unary operator after character " << tokens.tellg() << endl;
+					}
 					operators.push("INC");
 					lastPushed = "unary";
 					tokens >> current_char; // Move the cursor over by one
-// Need to look ahead until we find a digit (ignoring spaces); if operator after INC (or DEC), fail
+					charCount += 2;
 					break;
 				}
 				else if ((isdigit(tokens.peek())) || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
 					if (lastPushed == "binary") {
-						cout << "Two binary operators in a row at char " << endl;
+						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					else if (lastPushed == "unary") {
+						cout << "Cannot follow a unary operator with a binary operator after character " << tokens.tellg() << endl;
 						exit(1);
 					}
 					operators.push("ADD");
@@ -110,13 +120,13 @@ int Evaluation::evaluate(string expression) {
 				}
 				// if no valid characters follow the operator
 				else {
-					cout << "Two binary operators in a row at char " << endl;
+					cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
 					exit(1);
 				}
 			case '^':
 				if (isdigit(tokens.peek()) || (tokens.peek() == '+') || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
 					if (lastPushed == "binary") {
-						cout << "Two binary operators in a row at char " << endl;
+						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
 						exit(1);
 					}
 					operators.push("POW");
@@ -124,13 +134,13 @@ int Evaluation::evaluate(string expression) {
 					break;
 				}
 				else {
-					cout << "Two binary operators in a row at char " << endl;
+					cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
 					exit(1);
 				}
 			case '=':
 				if (tokens.peek() == '=') {
 					if (lastPushed == "binary") {
-						cout << "Two binary operators in a row at char " << endl;
+						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
 						exit(1);
 					}
 					operators.push("EQU");
@@ -139,17 +149,17 @@ int Evaluation::evaluate(string expression) {
 					break;
 				}
 				else if ((isdigit(tokens.peek())) || (tokens.peek() == ' ')) {
-					cout << "Equal sign in the expression at char " << endl;
+					cout << "Equal sign in the expression after character " << tokens.tellg() << endl;
 					exit(1);
 				}
 				else {
-					cout << "Invalid sequence of operators at char " << endl;
+					cout << "Invalid sequence of operators after character " << tokens.tellg() << endl;
 					exit(1);
 				}
 			case '&' :
 				if (tokens.peek() == '&') {
 					if (lastPushed == "binary") {
-						cout << "Two binary operators in a row at char " << endl;
+						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
 						exit(1);
 					}
 					operators.push("AND");
@@ -158,17 +168,17 @@ int Evaluation::evaluate(string expression) {
 					break;
 				}
 				else if ((isdigit(tokens.peek())) || (tokens.peek() == ' ')) {
-					cout << "Single ampersand in the expression at char " << endl;
+					cout << "Single ampersand in the expression after character " << tokens.tellg() << endl;
 					exit(1);
 				}
 				else {
-					cout << "Invalid sequence of operators at char " << endl;
+					cout << "Invalid sequence of operators after character " << tokens.tellg() << endl;
 					exit(1);
 				}
 			case '|':
 				if (tokens.peek() == '|') {
 					if (lastPushed == "binary") {
-						cout << "Two binary operators in a row at char " << endl;
+						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
 						exit(1);
 					}
 					operators.push("OR");
@@ -177,11 +187,11 @@ int Evaluation::evaluate(string expression) {
 					break;
 				}
 				else if ((isdigit(tokens.peek())) || (tokens.peek() == ' ')) {
-					cout << "Single bar in the expression at char " << endl;
+					cout << "Single bar in the expression after character " << tokens.tellg() << endl;
 					exit(1);
 				}
 				else {
-					cout << "Invalid sequence of operators at char " << endl;
+					cout << "Invalid sequence of operators after character " << tokens.tellg() << endl;
 					exit(1);
 				}
 			}
