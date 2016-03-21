@@ -73,14 +73,14 @@ int Evaluation::evaluate(string expression) {
 		exit(1);
 	}
 
-	// Start reading in tokens from string
+	// Start reading in tokens from the string
 	istringstream tokens(expression);
 
 	char current_char;
-	int charCount = 0;
 	string stringResult;
 
 	while (tokens >> current_char) {
+		// check for integers
 		if (isdigit(current_char)) {
 			tokens.putback(current_char);
 			int value;
@@ -89,22 +89,164 @@ int Evaluation::evaluate(string expression) {
 			operands.push(value);
 			lastPushed = "operand";
 		}
+		// check for operators
 		else if (is_operator(current_char)) {
-			// The only available operators that can follow another one are + - ! = & |
 			switch (current_char) {
+			
 			case '+':
-				// Possible 5 valid combinations: + space ( negation digit
+				// Check for INC (++)
 				if (tokens.peek() == '+') {
+					// check for valid previous character
+					if (lastPushed == "operand") {
+						cout << "Cannot follow an operand with a unary operator after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					// valid previous character, push the operator to the operator stack
+					operators.push("INC");
+					lastPushed = "unary";
+					tokens >> current_char; // Move the to the next character
+					break;
+				}
+				// Check for ADD (+)
+				// check for closing parentheses
+				else if (tokens.peek() == ')') {
+					cout << "Cannot follow an operator with a closing parentheses after character " << tokens.tellg() << endl;
+					exit(1);
+				}
+				// check for valid next character
+				else if ((isdigit(tokens.peek())) || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
+					// check for valid previous character
+					if (lastPushed == "binary") {
+						cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					else if (lastPushed == "unary") {
+						cout << "Cannot follow a unary operator with a binary operator after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					// valid next and previous characters, push the operator to the operator stack
+					operators.push("ADD");
+					lastPushed = "binary";
+					// Do not need to move the cursor forward as the while loop will do that automatically. 
+					break;
+				}
+				// no valid characters next, must be another binary operator
+				else {
+					cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
+					exit(1);
+				}
+			
+			case '^':
+				// check for valid next character
+				if (isdigit(tokens.peek()) || (tokens.peek() == '+') || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
+					// check for valid previous character
+					if (lastPushed == "binary") {
+						cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					if (lastPushed == "unary") {
+						cout << "Cannot follow a unary operator with an exponent after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					// check for closing parentheses
+					else if (tokens.peek() == ')') {
+						cout << "Cannot follow an operator with a closing parentheses after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					// valid next and previous characters, push the operator to the operator stack
+					operators.push("POW");
+					lastPushed = "binary";
+					break;
+				}
+				// no valid characters next, must be another binary operator
+				else {
+					cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
+					exit(1);
+				}
+			
+			case '=':
+				// check for EQU (==)
+				if (tokens.peek() == '=') {
+					// check for valid previous character
+					if (lastPushed == "binary" || lastPushed == "unary") {
+						cout << "Comparison operator follows an invalid operator after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					else if (lastPushed == "open") {
+						cout << "Comparison operator follows open parentheses after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					// valid next and previous characters, push operator to the stack
+					operators.push("EQU");
+					lastPushed = "binary";
+					tokens >> current_char; // move to the next character
+					break;
+				}
+				// no valid next character, must be single equal (=)
+				else {
+					cout << "Single equal sign in the comparison operator at character " << tokens.tellg() << endl;
+					exit(1);
+				}
+			
+			case '&' :
+				// Check for AND (&&)
+				if (tokens.peek() == '&') {
+					// check for valid previous character
+					if (lastPushed == "binary" || lastPushed == "unary") {
+						cout << "Comparison operator follows an invalid operator after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					else if (lastPushed == "open") {
+						cout << "Comparison operator follows open parentheses after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					// valid next and previous characters, push operator to the stack
+					operators.push("AND");
+					lastPushed = "binary";
+					tokens >> current_char;
+					break;
+				}
+				// no valid next character, must be single ampersand (&)
+				else {
+					cout << "Single ampersand in the comparison operator at character " << tokens.tellg() << endl;
+					exit(1);
+				}
+			
+			case '|':
+				// check for OR (||)
+				if (tokens.peek() == '|') {
+					// check fo valid previous character
+					if (lastPushed == "binary" || lastPushed == "unary") {
+						cout << "Comparison operator follows an operator after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					else if (lastPushed == "open") {
+						cout << "Comparison operator follows open parentheses after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					// valid next and previous characters, push operator to stack
+					operators.push("OR");
+					lastPushed = "binary";
+					tokens >> current_char;
+					break;
+				}
+				// no valid next character, must be single bar (|)
+				else {
+					cout << "Single bar in the comparison operator at character " << tokens.tellg() << endl;
+					exit(1);
+				}
+			
+			case '-':
+				if (tokens.peek() == '-') {
 					if (lastPushed == "operand") {
 						cout << "Cannot follow an operand with a unary operator after character " << tokens.tellg() << endl;
 					}
-					operators.push("INC");
+					operators.push("DEC");
 					lastPushed = "unary";
 					tokens >> current_char; // Move the cursor over by one
-					charCount += 2;
 					break;
 				}
-				else if ((isdigit(tokens.peek())) || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
+				else if ((isdigit(tokens.peek())) || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
 					if (lastPushed == "binary") {
 						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
 						exit(1);
@@ -123,78 +265,8 @@ int Evaluation::evaluate(string expression) {
 					cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
 					exit(1);
 				}
-			case '^':
-				if (isdigit(tokens.peek()) || (tokens.peek() == '+') || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
-					if (lastPushed == "binary") {
-						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
-						exit(1);
-					}
-					operators.push("POW");
-					lastPushed = "binary";
-					break;
-				}
-				else {
-					cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
-					exit(1);
-				}
-			case '=':
-				if (tokens.peek() == '=') {
-					if (lastPushed == "binary") {
-						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
-						exit(1);
-					}
-					operators.push("EQU");
-					lastPushed = "binary";
-					tokens >> current_char;
-					break;
-				}
-				else if ((isdigit(tokens.peek())) || (tokens.peek() == ' ')) {
-					cout << "Equal sign in the expression after character " << tokens.tellg() << endl;
-					exit(1);
-				}
-				else {
-					cout << "Invalid sequence of operators after character " << tokens.tellg() << endl;
-					exit(1);
-				}
-			case '&' :
-				if (tokens.peek() == '&') {
-					if (lastPushed == "binary") {
-						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
-						exit(1);
-					}
-					operators.push("AND");
-					lastPushed = "binary";
-					tokens >> current_char;
-					break;
-				}
-				else if ((isdigit(tokens.peek())) || (tokens.peek() == ' ')) {
-					cout << "Single ampersand in the expression after character " << tokens.tellg() << endl;
-					exit(1);
-				}
-				else {
-					cout << "Invalid sequence of operators after character " << tokens.tellg() << endl;
-					exit(1);
-				}
-			case '|':
-				if (tokens.peek() == '|') {
-					if (lastPushed == "binary") {
-						cout << "Two binary operators in a row after character " << tokens.tellg() << endl;
-						exit(1);
-					}
-					operators.push("OR");
-					lastPushed = "binary";
-					tokens >> current_char;
-					break;
-				}
-				else if ((isdigit(tokens.peek())) || (tokens.peek() == ' ')) {
-					cout << "Single bar in the expression after character " << tokens.tellg() << endl;
-					exit(1);
-				}
-				else {
-					cout << "Invalid sequence of operators after character " << tokens.tellg() << endl;
-					exit(1);
-				}
 			}
+			
 		}
 	}
 }
