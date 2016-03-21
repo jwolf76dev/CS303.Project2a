@@ -77,7 +77,6 @@ int Evaluation::evaluate(string expression) {
 	istringstream tokens(expression);
 
 	char current_char;
-	string stringResult;
 
 	while (tokens >> current_char) {
 		// check for integers
@@ -94,10 +93,12 @@ int Evaluation::evaluate(string expression) {
 			switch (current_char) {
 
 			case '*':
-				if (lastPushed == "unary") {
-					cout << "A unary operator can't be followed by a binary operator at " << tokens.tellg() << endl;
+				// MULT (*) operator must follow a digit or a closed parenthetic expression
+				if (lastPushed == "unary" || lastPushed == "binary" || lastPushed == "open") {
+					cout << "Multiplication operator follows another operator @character " << tokens.tellg() << endl;
 					exit(1);
 				}
+<<<<<<< HEAD
 				else if (lastPushed == "binary") {
 					cout << "Two operands in a row at char " << tokens.tellg() << endl;
 					exit(1);
@@ -111,49 +112,41 @@ int Evaluation::evaluate(string expression) {
 					lastPushed = "binary";
 					break;
 				}
+=======
+				// if valid, push to stack
+				operators.push("MUL");
+				lastPushed = "binary";
+				break;
+
+>>>>>>> 65f8e2903e869fb667d2ea7112763dd3681f60cc
 			case '/':
-				if (lastPushed == "unary") {
-					cout << "A unary operator can't be followed by a binary operator at " << tokens.tellg() << endl;
+				// DIV (/) operator must follow a digit or a closed parenthetic expression
+				if (lastPushed == "unary" || lastPushed == "binary" || lastPushed == "open") {
+					cout << "Division operator follows another operator @character " << tokens.tellg() << endl;
 					exit(1);
 				}
-				else if (lastPushed == "binary") {
-					cout << "Two operands in a row at char " << tokens.tellg() << endl;
-					exit(1);
-				}
-				else if (lastPushed == "open") {
-					cout << "Division operator follows open parantheses after character " << tokens.tellg() << endl;
-					exit(1);
-				}
-				else {
-					operators.push("DIV");
-					lastPushed = "binary";
-					break;
-				}
+				// if valid, push to stack
+				operators.push("DIV");
+				lastPushed = "binary";
+				break;
+	
 			case '%':
-				if (lastPushed == "unary") {
-					cout << "A unary operator can't be followed by a binary operator at " << tokens.tellg() << endl;
+				// MOD (%) operator must follow a digit or a closed parenthetic expression
+				if (lastPushed == "unary" || lastPushed == "binary" || lastPushed == "open") {
+					cout << "Modulus operator follows another operator @character " << tokens.tellg() << endl;
 					exit(1);
 				}
-				else if (lastPushed == "binary") {
-					cout << "Two operands in a row at char " << tokens.tellg() << endl;
-					exit(1);
-				}
-				else if (lastPushed == "open") {
-					cout << "Modulus operator follows open parantheses after character " << tokens.tellg() << endl;
-					exit(1);
-				}
-				else {
-					operators.push("MOD");
-					lastPushed = "binary";
-					break;
-				}
+				// if valid, push to stack
+				operators.push("MOD");
+				lastPushed = "binary";
+				break;
 
 			case '+':
 				// Check for INC (++)
 				if (tokens.peek() == '+') {
-					// check for valid previous character
+					// INC operator must follow an operator
 					if (lastPushed == "operand") {
-						cout << "Cannot follow an operand with a unary operator after character " << tokens.tellg() << endl;
+						cout << "Missing an operator @character " << tokens.tellg() << endl;
 						exit(1);
 					}
 					// valid previous character, push the operator to the operator stack
@@ -192,24 +185,33 @@ int Evaluation::evaluate(string expression) {
 				}
 
 			case '-':
+				// check for DEC (--)
 				if (tokens.peek() == '-') {
+					// check for valid previous character
 					if (lastPushed == "operand") {
 						cout << "Cannot follow an operand with a unary operator after character " << tokens.tellg() << endl;
 						exit(1);
 					}
-					else {
-						operators.push("DEC");
-						lastPushed = "unary";
-						tokens >> current_char; // Move the cursor over by one
-						break;
-					}
+					// valid previous character, poush the operator to the operator stack
+					operators.push("DEC");
+					lastPushed = "unary";
+					tokens >> current_char; // Move the cursor over by one
+					break;
 				}
+<<<<<<< HEAD
 				else if ((tokens.peek() == ' ') || (tokens.peek() == '(')) {
 					operators.push("SUB");
 					lastPushed = "binary";
+=======
+				// check for NEG (-)
+				else if (isdigit(tokens.peek) && (lastPushed == "binary" || lastPushed == "unary")) {
+					operators.push("NEG");
+					lastPushed = "unary";
+>>>>>>> 65f8e2903e869fb667d2ea7112763dd3681f60cc
 					break;
 				}
-				else if (isdigit(tokens.peek())) {
+				// check for SUB (-)
+				else if (lastPushed == "operand" && (isdigit(tokens.peek())) {
 					if ((lastPushed == "binary") || (lastPushed == "close")) {
 						operators.push("NEG");
 						lastPushed = "unary";
@@ -321,6 +323,7 @@ int Evaluation::evaluate(string expression) {
 					cout << "Single bar in the comparison operator at character " << tokens.tellg() << endl;
 					exit(1);
 				}
+<<<<<<< HEAD
 			case '>':
 				// check for valid previous character
 				if (lastPushed == "binary" || lastPushed == "unary") {
@@ -404,6 +407,9 @@ int Evaluation::evaluate(string expression) {
 					exit(1);
 				}
 			}	
+=======
+			}
+>>>>>>> 65f8e2903e869fb667d2ea7112763dd3681f60cc
 		}
 
 	}
