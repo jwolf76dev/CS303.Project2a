@@ -92,7 +92,10 @@ int Evaluation::evaluate(string expression) {
 		// check for operators
 		else if (is_operator(current_char)) {
 			switch (current_char) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 69167a40b449ac764ebd60d42c843efed2b5d167
 			case '*':
 				if (lastPushed == "unary") {
 					cout << "A unary operator can't be followed by a binary operator at " << tokens.tellg() << endl;
@@ -147,7 +150,10 @@ int Evaluation::evaluate(string expression) {
 					lastPushed = "binary";
 					break;
 				}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 69167a40b449ac764ebd60d42c843efed2b5d167
 			case '+':
 				// Check for INC (++)
 				if (tokens.peek() == '+') {
@@ -190,7 +196,10 @@ int Evaluation::evaluate(string expression) {
 					cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
 					exit(1);
 				}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 69167a40b449ac764ebd60d42c843efed2b5d167
 			case '-':
 				if (tokens.peek() == '-') {
 					if (lastPushed == "operand") {

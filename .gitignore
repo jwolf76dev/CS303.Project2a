@@ -234,3 +234,11 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+*.vcxproj
+*.filters
+*.sln
+stack_app.cpp
+Infix_Evaluator.h
+Infix_To_Postfix.h
+Infix_Evaluator.cpp
+Infix_To_Postfix_Parens.cpp
