@@ -28,7 +28,6 @@ public:
 	bool is_operator(char ch) const; 
 
 	// Functions to check expression
-	int countChars(const int& s);
 	bool is_open(char ch);
 	bool is_close(char ch);
 	bool is_balanced(const string& expression);

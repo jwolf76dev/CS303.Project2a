@@ -4,5 +4,6 @@
 
 void main() {
 	Evaluation eval; 
-	eval.evaluate("5*6/7*/9");
+	eval.evaluate("-5- -6-9");
+	system("pause");
 }
