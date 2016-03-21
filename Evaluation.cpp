@@ -92,7 +92,62 @@ int Evaluation::evaluate(string expression) {
 		// check for operators
 		else if (is_operator(current_char)) {
 			switch (current_char) {
-			
+
+			case '*':
+				if (lastPushed == "unary") {
+					cout << "A unary operator can't be followed by a binary operator at " << tokens.tellg() << endl;
+					exit(1);
+				}
+				else if (lastPushed == "binary") {
+					cout << "Two operands in a row at char " << tokens.tellg() << endl;
+					exit(1);
+				}
+				else if (lastPushed == "open") {
+					cout << "Multiplication operator follows open parantheses after character " << tokens.tellg() << endl; 
+					exit(1); 
+				}
+				else {
+					operators.push("MUL"); 
+					lastPushed = "binary";
+					break; 
+				}
+			case '/':
+				if (lastPushed == "unary") {
+					cout << "A unary operator can't be followed by a binary operator at " << tokens.tellg() << endl;
+					exit(1);
+				}
+				else if (lastPushed == "binary") {
+					cout << "Two operands in a row at char " << tokens.tellg() << endl;
+					exit(1);
+				}
+				else if (lastPushed == "open") {
+					cout << "Division operator follows open parantheses after character " << tokens.tellg() << endl;
+					exit(1);
+				}
+				else {
+					operators.push("DIV");
+					lastPushed = "binary";
+					break;
+				}
+			case '%':
+				if (lastPushed == "unary") {
+					cout << "A unary operator can't be followed by a binary operator at " << tokens.tellg() << endl;
+					exit(1);
+				}
+				else if (lastPushed == "binary") {
+					cout << "Two operands in a row at char " << tokens.tellg() << endl;
+					exit(1);
+				}
+				else if (lastPushed == "open") {
+					cout << "Modulus operator follows open parantheses after character " << tokens.tellg() << endl;
+					exit(1);
+				}
+				else {
+					operators.push("MOD");
+					lastPushed = "binary";
+					break;
+				}
+
 			case '+':
 				// Check for INC (++)
 				if (tokens.peek() == '+') {
@@ -135,7 +190,38 @@ int Evaluation::evaluate(string expression) {
 					cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
 					exit(1);
 				}
-			
+
+			case '-':
+				if (tokens.peek() == '-') {
+					if (lastPushed == "operand") {
+						cout << "Cannot follow an operand with a unary operator after character " << tokens.tellg() << endl;
+						exit(1);
+					}
+					else {
+						operators.push("DEC");
+						lastPushed = "unary";
+						tokens >> current_char; // Move the cursor over by one
+						break;
+					}
+				}
+				else if ((tokens.peek() == ' ') || (tokens.peek() == '(')) {
+					operators.push("SUB"); 
+					lastPushed = "binary"; 
+					break; 
+				}
+				else if (isdigit(tokens.peek())) {
+					if ((lastPushed == "binary") || (lastPushed == "close")) {
+						operators.push("NEG"); 
+						lastPushed = "unary"; 
+						break; 
+					}
+					else if ((lastPushed == "operand") || (lastPushed == "close")) {
+						operators.push("SUB"); 
+						lastPushed = "binary"; 
+						break; 
+					}
+				}
+					
 			case '^':
 				// check for valid next character
 				if (isdigit(tokens.peek()) || (tokens.peek() == '+') || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
@@ -304,50 +390,6 @@ string Evaluation::convertToText(char ch, char nextch) {
 			return "VOID"; //! is not followed by proper character
 		break;
 	}
-
-	case '+': {
-		allowed = "!+-(";
-		if ((allowed.find(nextch) != string::npos) || (isNextANumber == true)) {
-			if (nextch == '+') {
-				return "INC"; // Operator is ++
-			}
-			else {
-				return "ADD"; // Operator is +
-			}
-		}
-		else
-			return "VOID"; // Not followed by correct operator
-
-		break;
-	}
-	case '-': { //TODO: FIX THIS OMG
-		allowed = "!-(";
-		if ((allowed.find(nextch) != string::npos) || (isNextANumber == true)) {
-			if (nextch == '-') {
-				return "DEC";	// Operator is --
-			}
-			else if (isdigit(prevCharFlag) == true) {
-				// If the previous item was a digit, it can only be subtraction
-				return "SUB"; // Operator is subtraction
-			}
-			else if (isdigit(prevCharFlag) == false) {
-				return "NEG";
-			}
-			else
-				return "VOID";
-			break;
-		}
-	}
-			  // Potential Error - what if there is only one =
-	case '=': {
-		allowed = "-=(";
-		if (allowed.find(nextch) != string::npos) {
-			if (nextch == '=') {
-				return "EQU"; //Operator is ==
-			}
-		}
-		break;
-	}
 	case '>': {
 		allowed = "=!+-(";
 		if ((allowed.find(nextch) != string::npos) || (isNextANumber == true)) {
@@ -370,21 +412,6 @@ string Evaluation::convertToText(char ch, char nextch) {
 		}
 		break;
 	}
-	case '&': {
-		allowed = "&"; // We will have to increment the string counter by 2
-		if (allowed.find(nextch) != string::npos) {
-			return "AND"; // Operator is &&
-		}
-		break;
-	}
-	case '|': {
-		allowed = "|"; // We will have to increment the string counter by 2
-		if (allowed.find(nextch) != string::npos) {
-			return "OR"; // Operator is ||
-		}
-		break;
-	}
-
 	case '*': {
 		return "MUL"; // Operator is a *
 		break;
