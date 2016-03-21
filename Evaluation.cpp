@@ -72,7 +72,7 @@ int Evaluation::evaluate(string expression) {
 		cout << "The expression has unbalanced parantheses." << endl;
 		exit(1);
 	}
-
+	lastPushed = "FirstChar"; // TODO: For future reference, and fixing first char problem
 	// Start reading in tokens from the string
 	istringstream tokens(expression);
 
@@ -98,27 +98,11 @@ int Evaluation::evaluate(string expression) {
 					cout << "Multiplication operator follows another operator @character " << tokens.tellg() << endl;
 					exit(1);
 				}
-<<<<<<< HEAD
-				else if (lastPushed == "binary") {
-					cout << "Two operands in a row at char " << tokens.tellg() << endl;
-					exit(1);
-				}
-				else if (lastPushed == "open") {
-					cout << "Multiplication operator follows open parantheses after character " << tokens.tellg() << endl;
-					exit(1);
-				}
-				else {
-					operators.push("MUL");
-					lastPushed = "binary";
-					break;
-				}
-=======
 				// if valid, push to stack
 				operators.push("MUL");
 				lastPushed = "binary";
 				break;
 
->>>>>>> 65f8e2903e869fb667d2ea7112763dd3681f60cc
 			case '/':
 				// DIV (/) operator must follow a digit or a closed parenthetic expression
 				if (lastPushed == "unary" || lastPushed == "binary" || lastPushed == "open") {
@@ -129,7 +113,7 @@ int Evaluation::evaluate(string expression) {
 				operators.push("DIV");
 				lastPushed = "binary";
 				break;
-	
+
 			case '%':
 				// MOD (%) operator must follow a digit or a closed parenthetic expression
 				if (lastPushed == "unary" || lastPushed == "binary" || lastPushed == "open") {
@@ -198,30 +182,22 @@ int Evaluation::evaluate(string expression) {
 					tokens >> current_char; // Move the cursor over by one
 					break;
 				}
-<<<<<<< HEAD
-				else if ((tokens.peek() == ' ') || (tokens.peek() == '(')) {
-					operators.push("SUB");
-					lastPushed = "binary";
-=======
 				// check for NEG (-)
-				else if (isdigit(tokens.peek) && (lastPushed == "binary" || lastPushed == "unary")) {
+				else if (isdigit(tokens.peek()) && (lastPushed == "binary" || lastPushed == "unary"||lastPushed == "FirstChar")) {
 					operators.push("NEG");
 					lastPushed = "unary";
->>>>>>> 65f8e2903e869fb667d2ea7112763dd3681f60cc
 					break;
 				}
 				// check for SUB (-)
-				else if (lastPushed == "operand" && (isdigit(tokens.peek())) {
-					if ((lastPushed == "binary") || (lastPushed == "close")) {
-						operators.push("NEG");
-						lastPushed = "unary";
-						break;
-					}
-					else if ((lastPushed == "operand") || (lastPushed == "close")) {
+				else if (lastPushed == "operand" && ((isdigit(tokens.peek())) || tokens.peek()== ' ')) {
 						operators.push("SUB");
 						lastPushed = "binary";
 						break;
 					}
+				// no valid characters next, must be another binary operator
+				else {
+					cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
+					exit(1);
 				}
 
 			case '^':
@@ -323,7 +299,7 @@ int Evaluation::evaluate(string expression) {
 					cout << "Single bar in the comparison operator at character " << tokens.tellg() << endl;
 					exit(1);
 				}
-<<<<<<< HEAD
+
 			case '>':
 				// check for valid previous character
 				if (lastPushed == "binary" || lastPushed == "unary") {
@@ -348,10 +324,10 @@ int Evaluation::evaluate(string expression) {
 					lastPushed = "binary";
 					break;
 				}
-				
+
 				cout << "Greater than character in the comparison operator at character " << tokens.tellg() << endl;
 				exit(1);
-	
+
 			case '<':
 				// check for valid previous character
 				if (lastPushed == "binary" || lastPushed == "unary") {
@@ -392,7 +368,7 @@ int Evaluation::evaluate(string expression) {
 					lastPushed = "binary";
 					tokens >> current_char; // Take the '=' of the stream
 					break;
-				} 
+				}
 				else if (isdigit(tokens.peek())) {
 					if ((lastPushed == "operand" || lastPushed == "binary")) {//! can not follow a digit
 						cout << "! operator follows an invaild operator" << tokens.tellg() << endl;
@@ -406,14 +382,11 @@ int Evaluation::evaluate(string expression) {
 					cout << "Exclamation in the comparison operator at character " << tokens.tellg() << endl;
 					exit(1);
 				}
-			}	
-=======
 			}
->>>>>>> 65f8e2903e869fb667d2ea7112763dd3681f60cc
 		}
-
 	}
 }
+
 
 
 string Evaluation::convertToText(char ch, char nextch) {
