@@ -60,7 +60,7 @@ bool Evaluation::is_balanced(const string& expression) {
 	return balanced && s.empty();
 }
 
-int Evaluation::evaluate(string expression) {
+int Evaluation::stringParser(string expression) {
 
 	/* evaluate: Evaluates the stack
 	*  input: Takes in a string
@@ -387,142 +387,63 @@ int Evaluation::evaluate(string expression) {
 	}
 }
 
+void Evaluation::manageOperator(string op) {
+	// If the operator stack is empty 
+	// OR precedence of the current operator is great than top of stack operator, push the current operator to the stack
 
-
-string Evaluation::convertToText(char ch, char nextch) {
-	/* convertToText: Converts a math symbol to a text based one
-	* Input: Current character, and the next character in the string
-	* Returns: Text based version of the symbol input
-	* TODO: TEST subtraction, implement as part of the class
-	* ADD ERROR HANDLING FOR ==, ||, and &&.
-	*/
-
-	/* Allowed is a string that will hold the allowed values for each operator
-	* Note that for each operator, each case will call find() to determine if nextch
-	* is a valid operator that can follow ch. If find() cannot find nextch in the
-	* allowed, it'll return npos. Most functions will
-	*/
-	string allowed;
-
-	// The following variable will be 1 (True) if nextch is a number, 0 (False) if nextch is not a number
-	bool isNextANumber = isdigit(nextch);
-
-	// Could we potentially have it return VOID at the end if none of these match?
-	switch (ch) {
-	case '!': {
-		allowed = "!+-=(";
-		if ((allowed.find(nextch) != string::npos) || (isNextANumber == true)) {
-			if (nextch == '=')
-				return "NOTEQU"; // Operator is !=
-			else
-				return "NOT"; // Operator is !
+	if (operators.empty() || precedence(op)>precedence(operators.top())){
+		operators.push(op);
+		return;
+	}
+	else if (is_close(op[1])) { // If the operator is a closed parenthesis process the stack until the the top of the stack is an open parenthesis
+		while (!(is_open(operators.top()[1]))) {
+			processOperatorStack();
 		}
-		else
-			return "VOID"; //! is not followed by proper character
-		break;
+		operators.pop(); // Remove the open parenthesis
 	}
-	case '>': {
-		allowed = "=!+-(";
-		if ((allowed.find(nextch) != string::npos) || (isNextANumber == true)) {
-			if (nextch == '=') {
-				return "GREATEQU"; // Operator is >=
-			}
-			else
-				return "GREAT"; // Operator is >
+		// The current operator is less than or equal to what is on the stack and not a closed parenthesis, process the stack
+	else
+		while (precedence(op) <= precedence(operators.top())) {
+			processOperatorStack();
 		}
-		break;
-	}
-	case '<': {
-		allowed = "=!+-(";
-		if ((allowed.find(nextch) != string::npos) || (isNextANumber == true)) {
-			if (nextch == '=') {
-				return "LESSEQU"; // Operator is <=
-			}
-			else
-				return "LESS"; // Operator is <
-		}
-		break;
-	}
-	case '*': {
-		return "MUL"; // Operator is a *
-		break;
-	}
-
-	case '/': {
-		return "DIV"; // Operator is a /
-		break;
-	}
-
-	case '^': {
-		return "POW"; // Operator is a ^
-		break;
-	}
-
-	}
-	return "VOID";
+	return;	
 }
 
-/*
-int evaluate() {
-	//------------------------------------------------------------------------------------------------
-	//THE STUFF BETWEEN THESE LINES MAY NEED TO BE DONE ELSEWHERE b/c of the Parenthesis () things
-	int RHS, LHS;
-	while (!operators.empty()) {
-		string op = operators.top();
-		operators.pop();
+void Evaluation::processOperatorStack() {
 
-		RHS = operands.top();
+		int RHS = operands.top(), LHS, valued;
 		operands.pop();
 
 		// Not all operations need the LHS, so only pop it for the ones that do.
-		if (op != "NOT" || op != "INC" || op != "DEC" || op != "NEG") {
+		if (precedence(operators.top())!=8 && precedence(operators.top())!=-1) {
 			LHS = operands.top();
 			operands.pop();
 		}
 
-		//-------------------------------------------------------------------------------------------------
-		int valued;
-		if (op == "MUL")
-			valued = LHS*RHS;
-		else if (op == "DIV") {
-			if (RHS != 0)
-				valued = LHS / RHS;
-			else
-				cout << "Cannot Divide by 0!" << endl;
+		if (operators.top() == "DIV") {
+			if (RHS != 0) valued = LHS / RHS;
+			else {
+				cout << "Error: Division by 0" << endl;
+				exit(1);
+			}
 		}
-		else if (op == "SUB")
-			valued = LHS - RHS;
-		else if (op == "ADD")
-			valued = LHS + RHS;
-		else if (op == "NOT")
-			valued = !RHS;
-		else if (op == "NEG")
-			valued = -1 * RHS;
-		else if (op == "EQU")
-			valued = (LHS == RHS);
-		else if (op == "GREAT")
-			valued = (LHS > RHS);
-		else if (op == "GREATEQU")
-			valued = (LHS >= RHS);
-		else if (op == "LESS")
-			valued = (LHS < RHS);
-		else if (op == "LESSEQU")
-			valued = (LHS <= RHS);
-		else if (op == "INC")
-			valued = RHS + 1;
-		else if (op == "DEC")
-			valued = RHS - 1;
-		else if (op == "AND")
-			valued = (LHS && RHS);
-		else if (op == "OR")
-			valued = (LHS || RHS);
-		else if (op == "MOD")
-			valued = (LHS%RHS);
-		else if (op == "NOTEQU")
-			valued = (LHS != RHS);
-
+		else if (operators.top() == "MUL") valued = LHS*RHS;
+		else if (operators.top() == "SUB") valued = LHS - RHS;
+		else if (operators.top() == "ADD") valued = LHS + RHS;
+		else if (operators.top() == "NOT") valued = !RHS;
+		else if (operators.top() == "NEG") valued = (-1) * RHS;
+		else if (operators.top() == "EQU") valued = (LHS == RHS);
+		else if (operators.top() == "GREAT") valued = (LHS > RHS);
+		else if (operators.top() == "GREATEQU") valued = (LHS >= RHS);
+		else if (operators.top() == "LESS") valued = (LHS < RHS);
+		else if (operators.top() == "LESSEQU") valued = (LHS <= RHS);
+		else if (operators.top() == "INC") valued = RHS + 1;
+		else if (operators.top() == "DEC") valued = RHS - 1;
+		else if (operators.top() == "AND") valued = (LHS && RHS);
+		else if (operators.top() == "OR") valued = (LHS || RHS);
+		else if (operators.top() == "MOD") valued = (LHS%RHS);
+		else if (operators.top() == "NOTEQU") valued = (LHS != RHS);
 
 		operands.push(valued); // Push the result onto the stack
-	}
-	return operands.top(); //Maybe just return the result? Push it on elseware?
-}*/
+		lastPushed = "operand";
+}

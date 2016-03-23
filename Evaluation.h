@@ -1,11 +1,6 @@
 #ifndef EVALUATION_H
 #define EVALUATION_H
 
-// March 18 - Friday - Kati
-// I made this file to hold the rough draft of the evaluation class functions
-// Binh said he would work on the class on saturday, but I wanted to separate 
-// what I had away from the main.
-
 #include<string>
 #include<iostream>
 #include<sstream>
@@ -32,8 +27,11 @@ public:
 	bool is_close(char ch);
 	bool is_balanced(const string& expression);
 
-	string convertToText(char ch, char nextch);
-	int evaluate(string expression);
+	// Stack managers
+	void manageOperator(string op);
+	void processOperatorStack();
+
+	int stringParser(string expression);
 };
 
 #endif // !EVALUATION_H
