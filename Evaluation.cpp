@@ -1,4 +1,5 @@
 #include "Evaluation.h"
+#include <queue>
 
 const string SIGNS = "!+-^*/%><=&|";
 const string OPERATORS[] = { "NOT", "INC", "DEC", "NEG", "POW", "MUL","DIV","MOD","ADD","SUB","GREATEQU","GREAT","LESSEQU","LESS", "EQU", "NOTEQU", "AND", "OR" };
@@ -60,7 +61,7 @@ bool Evaluation::is_balanced(const string& expression) {
 	return balanced && s.empty();
 }
 
-int Evaluation::stringParser(string expression) {
+queue<Token> expressionTokenizer(string expression) {
 
 	/* evaluate: Evaluates the stack
 	*  input: Takes in a string
