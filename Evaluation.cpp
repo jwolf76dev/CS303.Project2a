@@ -390,9 +390,12 @@ int Evaluation::stringParser(string expression) {
 void Evaluation::manageOperator(string op) {
 	// If the operator stack is empty 
 	// OR precedence of the current operator is great than top of stack operator, push the current operator to the stack
+	int currentPrecedence = precedence(op);
 
-	if (operators.empty() || precedence(op)>precedence(operators.top())){
+	if (operators.empty() || currentPrecedence >precedence(operators.top())){
 		operators.push(op);
+		if (currentPrecedence == 8) lastPushed = "unary";
+		else lastPushed = "binary";
 		return;
 	}
 	else if (is_close(op[1])) { // If the operator is a closed parenthesis process the stack until the the top of the stack is an open parenthesis
@@ -400,12 +403,19 @@ void Evaluation::manageOperator(string op) {
 			processOperatorStack();
 		}
 		operators.pop(); // Remove the open parenthesis
+		return;
 	}
 		// The current operator is less than or equal to what is on the stack and not a closed parenthesis, process the stack
-	else
-		while (precedence(op) <= precedence(operators.top())) {
+	else {
+		// Process the stack until current operator has a higher precendence than what is on the stack
+		while (currentPrecedence <= precedence(operators.top()) ) {
 			processOperatorStack();
 		}
+		operators.push(op); // After the stack has been processed, push the current operator to the stack
+
+		if (currentPrecedence == 8) lastPushed = "unary";
+		else lastPushed = "binary";
+	}
 	return;	
 }
 
