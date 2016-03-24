@@ -1,9 +1,7 @@
 #include "Evaluation.h"
-//Obviously the main will look very different, but I'm using it to test code, so bear with me
-
 
 void main() {
 	Evaluation eval; 
-	eval.evaluate("-5- -6-9");
+	cout << eval.evaluate("(64+(3*9)-9)^2/3") << endl; //Should be 2241
 	system("pause");
 }

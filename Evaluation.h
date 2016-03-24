@@ -2,36 +2,44 @@
 #define EVALUATION_H
 
 #include<string>
-#include<iostream>
-#include<sstream>
+
 #include<stack>
+#include "Token.h"
+#include "Tokenizer.h"
+#include <queue>
+#include <cmath> //needed for exponent function
 using namespace std;
+
+bool is_open(char); // Declarations, definitions in Tokenizer.cpp
+bool is_close(char);
 
 class Evaluation {
 private:
-	string lastPushed; // String can be "operand", "unary", or "binary". 
-	char prevCharFlag; // Holds the previous item that was read in
-	const string OPEN = "([{";
-	const string CLOSE = ")]}";
+	// Unneeded variables?
+	//string lastPushed; // String can be "operand", "unary", "binary", "first". 
+	//char prevCharFlag; // Holds the previous item that was read in
+
 	stack<int> operands;
 	stack<string> operators;
 public:
 
-	Evaluation();  // Constructor
+	Evaluation() {}  // Constructor
 
 	int precedence(string op) const;  
-	bool is_operator(char ch) const; 
+	//bool is_operator(char ch) const;  // Needed by Tokenizer not Evaluation
 
-	// Functions to check expression
-	bool is_open(char ch);
-	bool is_close(char ch);
-	bool is_balanced(const string& expression);
+	// Functions to check expression, moved to Tokenizer
+	//bool is_open(char ch);
+	//bool is_close(char ch);
+	//bool is_balanced(const string& expression); // Needed by tokenizer not evaulation
 
 	// Stack managers
-	void manageOperator(string op);
+	void operatorMgr(string op);
+	void operandMgr(int num);
 	void processOperatorStack();
 
-	int stringParser(string expression);
+	int evaluate(string expression);
+	int tokenEvaluator(string expression);
 };
 
 #endif // !EVALUATION_H
