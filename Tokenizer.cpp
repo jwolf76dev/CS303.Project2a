@@ -59,10 +59,9 @@ queue<Token> expressionTokenizer(string expression) {
 		cout << "The expression has unbalanced parantheses." << endl;
 		exit(1);
 	}
-	string lastPushed = "FirstChar"; // TODO: For future reference, and fixing first char problem
-							  // Start reading in tokens from the string
-	istringstream tokens(expression);
-
+	string lastPushed = "FirstChar"; // Tel
+							  
+	istringstream tokens(expression); // Start reading in tokens from the string
 	char current_char;
 
 	while (tokens >> current_char) {
@@ -76,6 +75,7 @@ queue<Token> expressionTokenizer(string expression) {
 			current.num = value;
 			tokenQueue.push(current); //Add the number to the token then push on the queue
 			lastPushed = "operand";
+			 
 		}
 		// check for operators
 		else if (is_operator(current_char)) {
@@ -173,7 +173,7 @@ queue<Token> expressionTokenizer(string expression) {
 					break;
 				}
 				// check for NEG (-)
-				else if (isdigit(tokens.peek()) && (lastPushed == "binary" || lastPushed == "unary" || lastPushed == "FirstChar")) {
+				else if ((isdigit(tokens.peek()) || is_open(tokens.peek())) && (lastPushed == "binary" || lastPushed == "unary" || lastPushed == "FirstChar")) {
 					current.op = "NEG";
 					lastPushed = "unary";
 					break;
@@ -185,7 +185,7 @@ queue<Token> expressionTokenizer(string expression) {
 					break;
 				}
 				// no valid characters next, must be another binary operator
-				else {
+				else{
 					cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
 					exit(1);
 				}
@@ -359,7 +359,7 @@ queue<Token> expressionTokenizer(string expression) {
 					tokens >> current_char; // Take the '=' of the stream
 					break;
 				}
-				else if (isdigit(tokens.peek())) {
+				else if (isdigit(tokens.peek())||tokens.peek()=='-') {
 					if ((lastPushed == "operand" || lastPushed == "unary")) {//! can not follow a digit or unary
 						cout << "! operator follows an invaild operator" << tokens.tellg() << endl;
 						exit(1);
