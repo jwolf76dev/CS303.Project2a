@@ -16,7 +16,7 @@ int Evaluation::tokenEvaluator(string expression) {
 		if (!(current.num == -1)) // The token got a number
 			operandMgr(current.num);
 		else
-			operatorMgr(current.op); //The token got an operand
+			operatorMgr(current.op); // The token got an operator
 
 		tokenQueue.pop();
 	}
@@ -24,7 +24,7 @@ int Evaluation::tokenEvaluator(string expression) {
 	while (!(operators.empty()))
 		processOperatorStack();
 
-	return (operands.top()); //return the result
+	return (operands.top()); // Return the result
 	
 }
 
@@ -70,6 +70,9 @@ void Evaluation::operatorMgr(string op) {
 	else {
 		// Process the stack until current operator has a higher precendence than what is on the stack
 		while (!(operators.empty()) && !(operators.top()=="OPEN") && currentPrecedence <= precedence(operators.top())) {
+            if (operands.empty()) {
+                return; 
+            }
 			processOperatorStack();
 		}
 		operators.push(op); // After the stack has been processed, push the current operator to the stack
@@ -81,44 +84,48 @@ void Evaluation::operatorMgr(string op) {
 }
 
 void Evaluation::processOperatorStack() {
+    
+    int RHS = operands.top(), LHS, result;
+    operands.pop();
+    
+    // Not all operations need the LHS, so only pop it for the ones that do.
+    if (precedence(operators.top())!=8 && precedence(operators.top())!=-1) {
+        if (operands.empty()) {
+            cout << "Not enough operands in expression" << endl;
+            exit(1);
+        }
+        LHS = operands.top();
+        operands.pop();
+    }
 
-		int RHS = operands.top(), LHS, result;
-		operands.pop();
-
-		// Not all operations need the LHS, so only pop it for the ones that do.
-		if (precedence(operators.top())!=8 && precedence(operators.top())!=-1) {
-			LHS = operands.top();
-			operands.pop();
-		}
-
-		if (operators.top() == "DIV") {
-			if (RHS != 0) result = LHS / RHS;
-			else {
-				cout << "Error: Division by 0" << endl;
-				exit(1);
-			}
-		}
-		else if (operators.top() == "POW") result = pow(LHS, RHS);
-		else if (operators.top() == "MUL") result = LHS*RHS;
-		else if (operators.top() == "SUB") result = LHS - RHS;
-		else if (operators.top() == "ADD") result = LHS + RHS;
-		else if (operators.top() == "NOT") result = !RHS;
-		else if (operators.top() == "NEG") result = (-1) * RHS;
-		else if (operators.top() == "EQU") result = (LHS == RHS);
-		else if (operators.top() == "GREAT") result = (LHS > RHS);
-		else if (operators.top() == "GREATEQU") result = (LHS >= RHS);
-		else if (operators.top() == "LESS") result = (LHS < RHS);
-		else if (operators.top() == "LESSEQU") result = (LHS <= RHS);
-		else if (operators.top() == "INC") result = RHS + 1;
-		else if (operators.top() == "DEC") result = RHS - 1;
-		else if (operators.top() == "AND") result = (LHS && RHS);
-		else if (operators.top() == "OR") result = (LHS || RHS);
-		else if (operators.top() == "MOD") result = (LHS%RHS);
-		else if (operators.top() == "NOTEQU") result = (LHS != RHS);
+    if (operators.top() == "DIV") {
+        if (RHS != 0) result = LHS / RHS;
+        else {
+            cout << "Error: Division by 0" << endl;
+            exit(1);
+        }
+    }
+    
+    else if (operators.top() == "POW") result = pow(LHS, RHS);
+    else if (operators.top() == "MUL") result = LHS*RHS;
+    else if (operators.top() == "SUB") result = LHS - RHS;
+    else if (operators.top() == "ADD") result = LHS + RHS;
+    else if (operators.top() == "NOT") result = !RHS;
+    else if (operators.top() == "NEG") result = (-1) * RHS;
+    else if (operators.top() == "EQU") result = (LHS == RHS);
+    else if (operators.top() == "GREAT") result = (LHS > RHS);
+    else if (operators.top() == "GREATEQU") result = (LHS >= RHS);
+    else if (operators.top() == "LESS") result = (LHS < RHS);
+    else if (operators.top() == "LESSEQU") result = (LHS <= RHS);
+    else if (operators.top() == "INC") result = RHS + 1;
+    else if (operators.top() == "DEC") result = RHS - 1;
+    else if (operators.top() == "AND") result = (LHS && RHS);
+    else if (operators.top() == "OR") result = (LHS || RHS);
+    else if (operators.top() == "MOD") result = (LHS%RHS);
+    else if (operators.top() == "NOTEQU") result = (LHS != RHS);
 		
 		
-		operators.pop();
-		operands.push(result); // Push the result onto the stack
-		//lastPushed = "operand";
-		
+    operators.pop();
+    operands.push(result); // Push the result onto the stack
+    //lastPushed = "operand";
 }
