@@ -404,6 +404,10 @@ queue<Token> expressionTokenizer(string expression) {
 			case '(':
 			case '{':
 			case '[': //TODO: Error checking here?
+                    if (lastPushed == "operand") { // Implies multiplication (i.e 2(3))
+                        current.op = "MUL";
+                        tokenQueue.push(current);
+                    }
 				current.op = "OPEN";
 				lastPushed = "open";
 				break;

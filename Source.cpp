@@ -2,7 +2,8 @@
 
 int main() {
 	Evaluation eval;
-    cout << "++ 2 Result: " << eval.evaluate("++ 2") << endl; //Should be 2241
+    cout << "-3(4) Result: " << eval.evaluate("-3(4)") << endl; // Should be -12
+    cout << "++ 2 Result: " << eval.evaluate("++ 2") << endl; //Should be 3
     cout << "!!!!!!!8 Result: " << eval.evaluate("!!!!!!!!8") << endl; //Should be 2241
     cout << "(64+(3*9)-9)^2/3=2241 Result: " << eval.evaluate("(64+(3*9)-9)^2/3") << endl; //Should be 2241
     cout << "4- -(2)=6 Result: "<<eval.evaluate("4- -(2)") << endl; //Should be 6
