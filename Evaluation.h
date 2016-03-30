@@ -1,45 +1,43 @@
+/* Expression Evaluator for Infix expressions
+* Copyright (c) 2016 - Binh Mai, Kati Williams, Jay Wolf
+*/
 #ifndef EVALUATION_H
 #define EVALUATION_H
 
 #include<string>
 
-#include<stack>
+#include <stack>
 #include "Token.h"
 #include "Tokenizer.h"
 #include <queue>
 #include <cmath> //needed for exponent function
 using namespace std;
 
-bool is_open(char); // Declarations, definitions in Tokenizer.cpp
+bool is_open(char); //definitions in Tokenizer.cpp
 bool is_close(char);
+void Error();
 
 class Evaluation {
 private:
-	// Unneeded variables?
-	//string lastPushed; // String can be "operand", "unary", "binary", "first". 
-	//char prevCharFlag; // Holds the previous item that was read in
-
-	stack<int> operands;
+	stack<double> operands;
 	stack<string> operators;
 public:
 
 	Evaluation() {}  // Constructor
+	~Evaluation(){ //Destructor, makes sure both stacks are empty
+		while (!(operands.empty())) operands.pop();
+		while (!(operators.empty())) operators.pop();
+	}
 
 	int precedence(string op) const;  
-	//bool is_operator(char ch) const;  // Needed by Tokenizer not Evaluation
-
-	// Functions to check expression, moved to Tokenizer
-	//bool is_open(char ch);
-	//bool is_close(char ch);
-	//bool is_balanced(const string& expression); // Needed by tokenizer not evaulation
 
 	// Stack managers
 	void operatorMgr(string op);
-	void operandMgr(int num);
+	void operandMgr(double num);
 	void processOperatorStack();
 
-	int evaluate(string expression);
-	int tokenEvaluator(string expression);
+	double evaluate(string expression);
+	double tokenEvaluator(string expression);
 };
 
 #endif // !EVALUATION_H

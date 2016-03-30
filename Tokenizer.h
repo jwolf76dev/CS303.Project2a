@@ -1,3 +1,7 @@
+/* Expression Tokenizer
+* Copyright (c) 2016 - Binh Mai, Kati Williams, Jay Wolf
+*/
+
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
