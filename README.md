@@ -1,2 +1,4 @@
 # CS303.Project2a
-Stacks and infix equations
+(c) Binh Mai, Kati Williams, Jay Wolf
+
+Infix equation calculator using stacks
