@@ -4,8 +4,8 @@
 #include "Tokenizer.h"
 
 const string SIGNS = "!+-^*/%><=&|([{)]}"; // Acceptable operators
-const string OPEN = "([{";
-const string CLOSE = ")]}";
+const string OPEN = "([{"; // Acceptable open parentheses
+const string CLOSE = ")]}"; // Acceptable closing parentheses
 
 void exitError() {
 	/* exitError: Pauses the closing of the window, so user can see the error
@@ -71,7 +71,6 @@ bool is_operator(char ch) {
 
 
 queue<Token> expressionTokenizer(string expression) {
-
 	/* expressionTokenizer: Parses the expression, finds the correct 
      * equivalent values for each token, and places each token in
      * a queue to be processed
@@ -103,7 +102,7 @@ queue<Token> expressionTokenizer(string expression) {
 			tokens.putback(current_char);
 			int value;
 			tokens >> value;
-			// Push the substring to the operand stack
+		// Push the substring to the operand stack
 			current.num = value;
 			tokenQueue.push(current); // Add the number to the token then push on the queue
 			lastPushed = "operand";
@@ -114,7 +113,7 @@ queue<Token> expressionTokenizer(string expression) {
 			switch (current_char) {
 
 			case '*':
-				// MULT (*) operator must follow a digit or a closed parenthetic expression
+				// MUL (*) operator must follow a digit or a closed parenthetic expression
 				if (lastPushed == "unary" || lastPushed == "binary" || lastPushed == "open") {
 					cout << "Multiplication operator follows another operator at character " << tokens.tellg() << endl;
 					exitError();
@@ -180,7 +179,6 @@ queue<Token> expressionTokenizer(string expression) {
 					// Valid next and previous characters, push the operator to the operator stack
 					current.op = "ADD";
 					lastPushed = "binary";
-					// Do not need to move the cursor forward as the while loop will do that automatically. 
 					break;
 				}
 				// No valid characters next, must be another binary operator
@@ -201,7 +199,7 @@ queue<Token> expressionTokenizer(string expression) {
 					// Valid previous character, poush the operator to the operator stack
 					current.op = "DEC";
 					lastPushed = "unary";
-					tokens >> current_char; // Move the cursor over by one
+					tokens >> current_char; // Remove the extra '-' from the stream
 					break;
 				}
 				// Check for NEG (-)
@@ -410,7 +408,7 @@ queue<Token> expressionTokenizer(string expression) {
 			case '(':
 			case '{':
 			case '[': 
-                    if (lastPushed == "operand") { // Implies multiplication (i.e 2(3))
+                    if (lastPushed == "operand") { // Implies multiplication (e.g. 2(3))
                         current.op = "MUL";
                         tokenQueue.push(current);
                     }

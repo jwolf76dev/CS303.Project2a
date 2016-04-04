@@ -3,9 +3,6 @@
 */
 #include "Evaluation.h"
 
-const string OPERATORS[] = { "NOT", "INC", "DEC", "NEG", "POW", "MUL","DIV","MOD","ADD","SUB","GREATEQU","GREAT","LESSEQU","LESS", "EQU", "NOTEQU", "AND", "OR" }; // Operators allow to be pushed to the stack
-const int PRECEDENCE[] = { 8,8,8,8,7,6,6,6,5,5,4,4,4,4,3,3,2,1 }; // Precedence of the above operators
-
 double Evaluation::evaluate(string expression) {
 	/* evaluate: wrapper, handles the function calls for evaluating a string expression
 	* @param: the string expression to evaulate
@@ -24,21 +21,21 @@ double Evaluation::tokenEvaluator(string expression) {
 	while (!(tokenQueue.empty())) {
 		Token current = tokenQueue.front();
 		
-		if (!(current.num == -1)) // The token got a number
+		if (!(current.num == -1)) // The token receieved an operand
 			operandMgr(current.num);
 		else
-			operatorMgr(current.op); // The token got an operator
+			operatorMgr(current.op); // The token recieved an operator
 
-		tokenQueue.pop();
+		tokenQueue.pop(); // Remove the processed token from the queu
 	}
 
-	while (!(operators.empty()))
-		processOperatorStack();
+	while (!(operators.empty())) // All tokens processed, evauluate the stacks
+		evaluateStacks();
 
-	double result = operands.top();
-	operands.pop();
+	double result = operands.top(); // The result is pushed to the operand stack
+	operands.pop(); // Empty the operand stack
 
-	return (result); // Return the result
+	return (result);
 	
 }
 
@@ -48,6 +45,7 @@ void Evaluation::operandMgr(double num) {
 	* @return: none
 	*/
 	operands.push(num);
+	return;
 }
 
 int Evaluation::precedence(string op) const {
@@ -79,7 +77,7 @@ void Evaluation::operatorMgr(string op) {
 	// If the operator is a closed parentheses process the stack until the the top of the stack is an open parentheses
 	if (op == "CLOSE") { 
 		while (!(operators.top() == "OPEN")) {
-			processOperatorStack();
+			evaluateStacks();
 		}
 		operators.pop(); // Remove the open parentheses
 		return;
@@ -87,6 +85,7 @@ void Evaluation::operatorMgr(string op) {
 
 	int currentPrecedence = precedence(op);
 	
+	// If the operator stack is empty or the precedence of the current operator is greater than or equal to the top, push the operator
 	if ( operators.empty() || currentPrecedence >= precedence(operators.top()) ){
 		operators.push(op);
 		return;
@@ -98,16 +97,15 @@ void Evaluation::operatorMgr(string op) {
             if (operands.empty()) {
                 return; 
             }
-			processOperatorStack();
+			evaluateStacks();
 		}
 		operators.push(op); // After the stack has been processed, push the current operator to the stack
-
 	}
 
 	return;	
 }
 
-void Evaluation::processOperatorStack() {
+void Evaluation::evaluateStacks() {
 	/* processOperatorStack: Handles the evaluation of the stacks
 	* @param: none
 	* @return: none
@@ -126,7 +124,14 @@ void Evaluation::processOperatorStack() {
         operands.pop();
     }
 
-    if (operators.top() == "DIV") {
+	
+	if (operators.top() == "NOT") result = !RHS;
+	else if (operators.top() == "INC") result = RHS+1;
+	else if (operators.top() == "DEC") result = RHS - 1;
+	else if (operators.top() == "NEG") result = (-1) * RHS;
+	else if (operators.top() == "POW") result = pow(LHS, RHS);
+	else if (operators.top() == "MUL") result = LHS*RHS;
+	else if (operators.top() == "DIV") {
         if (RHS != 0) result = LHS / RHS;
         else {
             cout << "Error: Division by 0" << endl;
@@ -134,26 +139,19 @@ void Evaluation::processOperatorStack() {
             exit(1);
         }
     }
-    
-    else if (operators.top() == "POW") result = pow(LHS, RHS);
-    else if (operators.top() == "MUL") result = LHS*RHS;
+	else if (operators.top() == "MOD") result = (int)LHS % (int)RHS;
+	else if (operators.top() == "ADD") result = LHS + RHS;
     else if (operators.top() == "SUB") result = LHS - RHS;
-    else if (operators.top() == "ADD") result = LHS + RHS;
-    else if (operators.top() == "NOT") result = !RHS;
-    else if (operators.top() == "NEG") result = (-1) * RHS;
+	else if (operators.top() == "GREATEQU") result = (LHS >= RHS);
+	else if (operators.top() == "GREAT") result = (LHS > RHS);
+	else if (operators.top() == "LESSEQU") result = (LHS <= RHS);
+	else if (operators.top() == "LESS") result = (LHS < RHS);
     else if (operators.top() == "EQU") result = (LHS == RHS);
-    else if (operators.top() == "GREAT") result = (LHS > RHS);
-    else if (operators.top() == "GREATEQU") result = (LHS >= RHS);
-    else if (operators.top() == "LESS") result = (LHS < RHS);
-    else if (operators.top() == "LESSEQU") result = (LHS <= RHS);
-    else if (operators.top() == "INC") result = RHS + 1;
-    else if (operators.top() == "DEC") result = RHS - 1;
+	else if (operators.top() == "NOTEQU") result = LHS != RHS;
     else if (operators.top() == "AND") result = LHS && RHS;
     else if (operators.top() == "OR") result = LHS || RHS;
-    else if (operators.top() == "MOD") result =(int) LHS%(int)RHS;
-    else if (operators.top() == "NOTEQU") result = LHS != RHS;
-		
 		
     operators.pop();
     operands.push(result); // Push the result onto the stack
+	return;
 }

@@ -10,21 +10,27 @@
 #include "Token.h"
 #include "Tokenizer.h"
 #include <queue>
-#include <cmath> //needed for exponent function
+#include <string>
+#include <cmath> // Exponent function
 using namespace std;
 
-bool is_open(char); //definitions in Tokenizer.cpp
+const string OPERATORS[] = { "NOT", "INC", "DEC", "NEG", "POW", "MUL","DIV","MOD","ADD","SUB","GREATEQU","GREAT","LESSEQU","LESS", "EQU", "NOTEQU", "AND", "OR" }; // Operators allow to be pushed to the stack
+
+const int PRECEDENCE[] = { 8,8,8,8,7,6,6,6,5,5,4,4,4,4,3,3,2,1 }; // Precedence of the above operators
+
+bool is_open(char); // Definitions in Tokenizer.cpp
 bool is_close(char);
-void Error();
+
 
 class Evaluation {
 private:
-	stack<double> operands;
-	stack<string> operators;
+	stack<double> operands; 
+	stack<string> operators; 
+
 public:
 
 	Evaluation() {}  // Constructor
-	~Evaluation(){ //Destructor, makes sure both stacks are empty
+	~Evaluation(){ // Destructor, makes sure both stacks are empty
 		while (!(operands.empty())) operands.pop();
 		while (!(operators.empty())) operators.pop();
 	}
@@ -34,7 +40,8 @@ public:
 	// Stack managers
 	void operatorMgr(string op);
 	void operandMgr(double num);
-	void processOperatorStack();
+
+	void evaluateStacks();
 
 	double evaluate(string expression);
 	double tokenEvaluator(string expression);
