@@ -8,7 +8,7 @@ const string OPEN = "([{"; // Acceptable open parentheses
 const string CLOSE = ")]}"; // Acceptable closing parentheses
 
 void exitError() {
-	/* exitError: Pauses the closing of the window, so user can see the error
+	/* exitError: Pauses the closing of the window so user can see the error
 	* @param: none
 	* @return: none
 	*/
@@ -17,7 +17,7 @@ void exitError() {
 }
 
 bool is_open(char ch) {
-	/* is_open: Checks to see if character is a open parentheses
+	/* is_open: Checks to see if character is an open parentheses
 	* @param: the character to check
 	* @return: 1 = open, 0 = not open
 	*/
@@ -71,24 +71,24 @@ bool is_operator(char ch) {
 
 
 queue<Token> expressionTokenizer(string expression) {
-	/* expressionTokenizer: Parses the expression, finds the correct 
-     * equivalent values for each token, and places each token in
-     * a queue to be processed
-	 *  @param: Takes in a string expression
-	 *  @return: queue of tokens derived from the string expression 
+	/* expressionTokenizer: Parses an expression into tokens;
+	 * enumerates operators as equivalent strings and recognizes
+	 * multi-digit numbers; places each token in a queue
+	 * @param: Takes in a string expression
+	 * @return: queue of tokens derived from the string expression 
 	 */
     
 	queue<Token> tokenQueue;
-	// Check for balanced parentheses
+	// Check the provided expression for balanced parentheses
 	if (is_balanced(expression) == false) {
 		cout << "The expression has unbalanced parentheses." << endl;
 		exitError();
 	}
     
-	string lastPushed = "FirstChar"; // Holds what was last pushed in
+	string lastPushed = "FirstChar"; // Holds what was last pushed to the queue
     char current_char;
 							  
-	istringstream tokens(expression); // Start reading in tokens from the string
+	istringstream tokens(expression); // Start tokenizing the expression string
 
 
 	while (tokens >> current_char) {
@@ -99,12 +99,12 @@ queue<Token> expressionTokenizer(string expression) {
                 cout << "Cannot have two operands in a row at character " << tokens.tellg() << endl;
                 exitError(); 
             }
-			tokens.putback(current_char);
+			tokens.putback(current_char); // handles multi-digit operands
 			int value;
 			tokens >> value;
-		// Push the substring to the operand stack
+		// Push the integer substring to the operand stack
 			current.num = value;
-			tokenQueue.push(current); // Add the number to the token then push on the queue
+			tokenQueue.push(current); // Add the digit to the token then push to the queue
 			lastPushed = "operand";
 			 
 		}
@@ -115,10 +115,14 @@ queue<Token> expressionTokenizer(string expression) {
 			case '*':
 				// MUL (*) operator must follow a digit or a closed parenthetic expression
 				if (lastPushed == "unary" || lastPushed == "binary" || lastPushed == "open") {
-					cout << "Multiplication operator follows another operator at character " << tokens.tellg() << endl;
+					cout << expression << " -> ERROR: Multiplication operator follows another operator at character " << tokens.tellg() << endl;
 					exitError();
 				}
-				// if valid, push to stack
+				else if (lastPushed == "FirstChar") {
+					cout << expression << " -> ERROR: Expression cannot start with a binary operator." << endl;
+					exitError();
+				}
+				// if valid, push to queue
 				current.op = "MUL";
 				lastPushed = "binary";
 				break;
@@ -126,10 +130,14 @@ queue<Token> expressionTokenizer(string expression) {
 			case '/':
 				// DIV (/) operator must follow a digit or a closed parenthetic expression
 				if (lastPushed == "unary" || lastPushed == "binary" || lastPushed == "open") {
-					cout << "Division operator follows another operator at character " << tokens.tellg() << endl;
+					cout << expression << " -> ERROR: Division operator follows another operator at character " << tokens.tellg() << endl;
 					exitError();
 				}
-				// if valid, push to stack
+				else if (lastPushed == "FirstChar") {
+					cout << expression << " -> ERROR: Expression cannot start with a binary operator." << endl;
+					exitError();
+				}
+				// if valid, push to queue
 				current.op = "DIV";
 				lastPushed = "binary";
 				break;
@@ -137,10 +145,14 @@ queue<Token> expressionTokenizer(string expression) {
 			case '%':
 				// MOD (%) operator must follow a digit or a closed parenthetic expression
 				if (lastPushed == "unary" || lastPushed == "binary" || lastPushed == "open") {
-					cout << "Modulus operator follows another operator before character " << tokens.tellg() << endl;
+					cout << expression << " -> ERROR: Modulus operator follows another operator at character " << tokens.tellg() << endl;
 					exitError();
 				}
-				// if valid, push to stack
+				else if (lastPushed == "FirstChar") {
+					cout << expression << " -> ERROR: Expression cannot start with a binary operator." << endl;
+					exitError();
+				}
+				// if valid, push to queue
 				current.op = "MOD";
 				lastPushed = "binary";
 				break;
@@ -149,78 +161,90 @@ queue<Token> expressionTokenizer(string expression) {
 				// Check for INC (++)
 				if (tokens.peek() == '+') {
 					// INC operator must follow an operator
-					if (lastPushed == "operand") {
-						cout << "Missing an operator before character " << tokens.tellg() << endl;
+					if (lastPushed == "operand" || lastPushed == "close") {
+						cout << expression << " -> ERROR: Increment operator follows an operand at character " << tokens.tellg() << endl;
 						exitError();
 					}
-					// Valid previous character, push the operator to the operator stack
+					// if valid, push to queue
 					current.op = "INC";
 					lastPushed = "unary";
-					tokens >> current_char; // Move the to the next character
+					tokens >> current_char; // remove the extra '+' from the stream
 					break;
 				}
-				// Check for ADD (+)
-				// Check for closing parentheses
+				// if not INC, must be ADD (+)
+				// ADD operator must follow a digit or a closed parenthetic expression
+/*				// Check for closing parentheses
 				else if (tokens.peek() == ')') {
-					cout << "Cannot follow an operator with a closing parentheses after character " << tokens.tellg() << endl;
+					cout << expression << " -> ERROR: Addition operator preceeds a closing parentheses at character " << tokens.tellg() << endl;
 					exitError();
 				}
 				// Check for valid next character
 				else if ((isdigit(tokens.peek())) || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {
 					// Check for valid previous character
-					if (lastPushed == "binary") {
-						cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
-						exitError();
-					}
-					else if (lastPushed == "unary") {
-						cout << "Cannot follow a unary operator with a binary operator after character " << tokens.tellg() << endl;
-						exitError();
-					}
-					// Valid next and previous characters, push the operator to the operator stack
-					current.op = "ADD";
-					lastPushed = "binary";
-					break;
+*/
+				if (lastPushed == "binary" || lastPushed == "unary" || lastPushed == "open") {
+					cout << expression << " -> ERROR: Addition operator follows another operator at character " << tokens.tellg() << endl;
+					exitError();
 				}
+				else if (lastPushed == "FirstChar") {
+					cout << expression << " -> ERROR: Expression cannot start with a binary operator." << endl;
+					exitError();
+				}
+				// if valid, push to queue
+				current.op = "ADD";
+				lastPushed = "binary";
+				break;
+/*				}
 				// No valid characters next, must be another binary operator
 				else {
 					cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
 					system("pause");
 					exitError();
 				}
-
+*/
 			case '-':
 				// Check for DEC (--)
 				if (tokens.peek() == '-') {
-					// check for valid previous character
-					if (lastPushed == "operand") {
-						cout << "Cannot follow an operand with a unary operator after character " << tokens.tellg() << endl;
+					// DEC operator must follow an operator or start the expression
+					if (lastPushed == "operand" || lastPushed == "close") {
+						cout << expression << " -> ERROR: Decrement operator follows an operand at character " << tokens.tellg() << endl;
 						exitError();
 					}
-					// Valid previous character, poush the operator to the operator stack
+					// if valid, push to queue
 					current.op = "DEC";
 					lastPushed = "unary";
-					tokens >> current_char; // Remove the extra '-' from the stream
+					tokens >> current_char; // remove the extra '-' from the stream
 					break;
 				}
-				// Check for NEG (-)
-				else if ((isdigit(tokens.peek()) || is_open(tokens.peek())) && (lastPushed == "binary" || lastPushed == "unary" || lastPushed == "FirstChar"||lastPushed=="open")) {
+				// not DEC, check for NEG (-)
+				// NEG operator must precede a number or open parenthetic expression and must follow an operator or start the expression
+				else if ((isdigit(tokens.peek()) || is_open(tokens.peek())) && (lastPushed == "binary" || lastPushed == "unary" || lastPushed == "open" || lastPushed == "FirstChar")) {
 					current.op = "NEG";
 					lastPushed = "unary";
 					break;
 				}
 
-				// Check for SUB (-)
-				else if ((lastPushed == "operand" || lastPushed=="close") && ((isdigit(tokens.peek())) || tokens.peek() == ' ')) {
-					current.op = "SUB";
-					lastPushed = "binary";
-					break;
+				// not DEC or NEG, must be SUB (-)
+				// SUB operator must follow an operand or closed parenthetic expression
+				if (lastPushed == "binary" || lastPushed == "unary" || lastPushed == "open") {
+					cout << expression << " -> ERROR: Subtraction operator follows another operator at character " << tokens.tellg() << endl;
+					exitError();
 				}
+				else if (lastPushed == "FirstChar") {
+					cout << expression << " -> ERROR: Expression cannot start with a binary operator." << endl;
+					exitError();
+				}
+				// if valid, push to queue
+				current.op = "SUB";
+				lastPushed = "binary";
+				break;
+/*				}
 				// No valid characters next, must be another binary operator
 				else{
 					cout << "Cannot have two binary operators in a row after character " << tokens.tellg() << endl;
 					exitError();
 				}
-
+*/
 			case '^':
 				// Check for valid next character
 				if (isdigit(tokens.peek()) || (tokens.peek() == '+') || (tokens.peek() == '-') || (tokens.peek() == '(') || (tokens.peek() == ' ')) {

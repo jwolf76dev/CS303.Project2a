@@ -11,6 +11,8 @@ void main() {
 	cout << test << "= " << eval.evaluate(test) << endl;
 	test = "(64+(3*9)-9)^2/3"; // Result is 2241.33
 	cout << test << "= " << eval.evaluate(test) << endl;
+	test = "2**2+5"; // invalid expression
+	cout << test << "= " << eval.evaluate(test) << endl;
 
 	system("pause");
     return;
