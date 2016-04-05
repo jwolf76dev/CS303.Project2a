@@ -118,7 +118,16 @@ queue<Token> expressionTokenizer(string expression) {
 			case '(':
 			case '{':
 			case '[':
-				// Push to queue
+				// OPEN must follow an operator or start the expression
+				if (lastPushed == "operand") {
+					cout << expression << " -> ERROR: Open parentheses follows an operand at character " << tokens.tellg() << endl;
+					exitError();
+				}
+				else if (lastPushed == "close") {
+					cout << expression << " -> ERROR: Missing an operator at character " << tokens.tellg() << endl;
+					exitError();
+				}
+				// If valid, push to queue
 				current.op = "OPEN";
 				lastPushed = "open";
 				break;
@@ -439,5 +448,4 @@ queue<Token> expressionTokenizer(string expression) {
 		}
 	}
 	return tokenQueue;
-	
 }

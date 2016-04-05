@@ -140,7 +140,7 @@ void Evaluation::evaluateStacks() {
             exit(1);
         }
     }
-	else if (operators.top() == "MOD") result = (int)LHS % (int)RHS;
+	else if (operators.top() == "MOD") result = LHS - RHS * floor(LHS/RHS);
 	else if (operators.top() == "ADD") result = LHS + RHS;
     else if (operators.top() == "SUB") result = LHS - RHS;
 	else if (operators.top() == "GREATEQU") result = (LHS >= RHS);

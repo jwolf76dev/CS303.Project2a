@@ -6,7 +6,7 @@
 void main() {
 	Evaluation eval;
 
-	string test = "4 = 5";
+	string test = "";
 	cout << test << " = " << eval.evaluate(test) << endl;
 
 	system("pause");
