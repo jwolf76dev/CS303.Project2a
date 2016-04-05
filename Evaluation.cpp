@@ -26,13 +26,13 @@ double Evaluation::tokenEvaluator(string expression) {
 		else
 			operatorMgr(current.op); // The token recieved an operator
 
-		tokenQueue.pop(); // Remove the processed token from the queu
+		tokenQueue.pop(); // Remove the processed token from the queue
 	}
 
 	while (!(operators.empty())) // All tokens processed, evauluate the stacks
 		evaluateStacks();
 
-	double result = operands.top(); // The result is pushed to the operand stack
+	double result = operands.top(); // Pushed result to the operand stack
 	operands.pop(); // Empty the operand stack
 
 	return (result);
@@ -49,11 +49,11 @@ void Evaluation::operandMgr(double num) {
 }
 
 int Evaluation::precedence(string op) const {
-	/* precedence: finds the precedence of an operator
+	/* precedence: finds the precedence of an operator as defined in the header file
 	* @param: an operator
 	* @return: precedence of that operator or -1 if not found
 	*/
-	for (int i = 0; i < (sizeof(OPERATORS) / sizeof(OPERATORS[0])); i++) { // sizeof(array)/sizeof(element)=number of elements
+	for (int i = 0; i < (sizeof(OPERATORS) / sizeof(OPERATORS[0])); i++) { // sizeof(array)/sizeof(element) = number of elements
 		
 		if (OPERATORS[i] == op) {
 			
@@ -70,11 +70,11 @@ void Evaluation::operatorMgr(string op) {
 	* @return: none
 	*/
 	if (op == "OPEN") {
-		operators.push(op); //Open parentheses always get pushed
+		operators.push(op); // Open parentheses always get pushed
 		return;
 	}
 
-	// If the operator is a closed parentheses process the stack until the the top of the stack is an open parentheses
+	// Closed parentheses: process the stack until the the top of the stack is an open parentheses
 	if (op == "CLOSE") { 
 		while (!(operators.top() == "OPEN")) {
 			evaluateStacks();
@@ -90,9 +90,9 @@ void Evaluation::operatorMgr(string op) {
 		operators.push(op);
 		return;
 	} 
-	// Operators Stack is not empty, and currentPrecedence is less or equal to the top, therefore process stack
+	// Operators Stack is not empty and currentPrecedence is less or equal to the top: process stacks
 	else {
-		// Process the stack until current operator has a higher precendence than what is on the stack
+		// Process the stacks until current operator has a higher precendence than what is on the operator stack
 		while (!(operators.empty()) && !(operators.top()=="OPEN") && currentPrecedence < precedence(operators.top())) {
             if (operands.empty()) {
                 return; 
@@ -125,16 +125,17 @@ void Evaluation::evaluateStacks() {
     }
 
 	
+	// Define behavior for operators
 	if (operators.top() == "NOT") result = !RHS;
-	else if (operators.top() == "INC") result = RHS+1;
+	else if (operators.top() == "INC") result = RHS + 1;
 	else if (operators.top() == "DEC") result = RHS - 1;
 	else if (operators.top() == "NEG") result = (-1) * RHS;
 	else if (operators.top() == "POW") result = pow(LHS, RHS);
-	else if (operators.top() == "MUL") result = LHS*RHS;
+	else if (operators.top() == "MUL") result = LHS * RHS;
 	else if (operators.top() == "DIV") {
         if (RHS != 0) result = LHS / RHS;
         else {
-            cout << "Error: Division by 0" << endl;
+            cout << "ERROR: Division by 0" << endl;
 			system("PAUSE");
             exit(1);
         }

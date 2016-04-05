@@ -6,8 +6,8 @@
 #include <string>
 
 struct Token {
-	int num=-1; // A token number can never be negative
-	std::string op="NULL"; // Default value for current tokens operator
+	int num = -1; // Default value for operator tokens
+	std::string op = "NULL"; // Default value for operand tokens
 
 	Token(int newNum) :num(newNum) {}
 	Token(std::string newOp) : op(newOp) {}

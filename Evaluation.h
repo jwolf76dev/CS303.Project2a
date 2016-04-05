@@ -29,8 +29,11 @@ private:
 
 public:
 
-	Evaluation() {}  // Constructor
-	~Evaluation(){ // Destructor, makes sure both stacks are empty
+	// Constructor
+	Evaluation() {}
+	
+	// Destructor, makes sure both stacks are empty
+	~Evaluation(){
 		while (!(operands.empty())) operands.pop();
 		while (!(operators.empty())) operators.pop();
 	}
